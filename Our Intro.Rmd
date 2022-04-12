@@ -1,0 +1,53 @@
+---
+title: "We Talk R 15 mins/day"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# General approach
+
+We will keep a tally of these activities here.  Every day, 15 minutes of R activity.
+
+# Project based
+
+## Project 1:  Trust as a latent entity
+
+Let's figure out how to model Trust as a latent entity.  What you will learn:
+
+1. EFA
+2. Model inspection
+3. Fit evaluation
+4. Psychometrics
+5. R coding
+
+Things to do:
+1. Decide on the data
+2. Get some objectives line up
+3. Operationalize said objectives
+
+```{r Data}
+dat <- read.csv("./dat5alll.csv",header=TRUE)[,-1]
+library(psych)
+describe(dat)
+```
+
+```{r Steps2Objs}
+
+```
+
+```{r Models}
+
+```
+
+```{r EvalModels}
+
+```
+
+You can include R code in the document as follows:
+
+```{r cars}
+summary(cars)
+```
