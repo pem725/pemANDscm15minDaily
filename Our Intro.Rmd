@@ -28,13 +28,33 @@ Things to do:
 2. Get some objectives line up
 3. Operationalize said objectives
 
+### Data
+
+We are using the 5th study data (SCM dissertation).
+
 ```{r Data}
 dat <- read.csv("./dat5alll.csv",header=TRUE)[,-1]
 library(psych)
 describe(dat)
 ```
 
-```{r Steps2Objs}
+### Objectives
+
+Create an EFA model for trust from the available data.  Use the factor scores of the first factor to predict self-reported trust (T) that ought to, in turn predict behavioral intent (B) to trust the agent.
+
+#### EFA
+
+```{r EFA}
+## We'll use G, U1, U2, and R as manifest indicators of F1 (latent entity of
+## trust)
+
+library(psych)
+efa1 <- fa(dat[,3:6],missing=TRUE) 
+efa1
+## compute the correlation matrix to check relationships bw vars
+corPlot(cor(dat[,3:7],use="pairwise.complete.obs"))
+## compute the factor scores for F1 and add to dat
+dat$efaF1 <- factor.scores(dat[,3:6],efa1)[[1]]
 
 ```
 
