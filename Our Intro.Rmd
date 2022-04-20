@@ -48,22 +48,57 @@ Create an EFA model for trust from the available data.  Use the factor scores of
 ## We'll use G, U1, U2, and R as manifest indicators of F1 (latent entity of
 ## trust)
 
+## test variances of variables
+round(cov(dat[,3:6],use="pairwise.complete.obs"),2)
+round(cor(dat[,3:6],use="pairwise.complete.obs"),2)
+
 library(psych)
 efa1 <- fa(dat[,3:6],missing=TRUE) 
 efa1
+efa2 <- fa(dat[,c(3,5:6)],missing=TRUE) 
+efa2
+
 ## compute the correlation matrix to check relationships bw vars
 corPlot(cor(dat[,3:7],use="pairwise.complete.obs"))
 ## compute the factor scores for F1 and add to dat
 dat$efaF1 <- factor.scores(dat[,3:6],efa1)[[1]]
 
 ```
+```{r PCA}
+pca1 <- principal(dat[,3:6],missing=TRUE) 
+pca1
+## compute the correlation matrix to check relationships bw vars
+corPlot(cor(dat[,3:7],use="pairwise.complete.obs"))
+## compute the factor scores for F1 and add to dat
+dat$pcaPC1 <- factor.scores(dat[,3:6],pca1)[[1]]
+```
+
+
 
 ```{r Models}
+#resume with 2 models
+# SCM?: What do the numbers mean and what would good values look like?
+
+# SCM?: What do the numbers reflect?  Why are there heuristics?  I don't want to
+# rely on heuristics if I don't know what they mean.
+library(ggplot2)
+round(cor(dat$efaF1,dat$pcaPC1,use="pairwise.complete.obs"),2)
+ggplot(data=dat,aes(x=efaF1,y=pcaPC1)) + geom_smooth()
 
 ```
 
 ```{r EvalModels}
-
+library(mediation)
+## Testing a mediation model of efa1 predicting SR Trust and then BI
+## Need to recode B from 0-1
+dat$B <- dat$B-1
+## c' path
+bc <- glm(B ~ efaF1 + T,family=binomial(link="probit"),data=dat) 
+## a path
+a <- lm(T ~ efaF1, data=dat)
+## Mediation model
+med1 <- mediate(a,bc,sims=50,treat="efaF1",mediator="T",dropobs=TRUE)
+summary(med1)
 ```
 
 You can include R code in the document as follows:
