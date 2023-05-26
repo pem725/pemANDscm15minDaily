@@ -42,6 +42,6 @@ psycho::dprime(HR.1,FA.1,MR.1,CR.1,baseRate*Ntrials,Ntrials-(baseRate*Ntrials),T
 ## 2. Create structure for shiny app
 ## 3. Brainstorm graphics for the shiny app
 ## 4. Investigate input options
-
-
+## 5. Different bag scenarios in a tab
+## 6. Different TSO scenarios across different bags
   
