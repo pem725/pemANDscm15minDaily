@@ -103,6 +103,407 @@ summary(med1)
 
 You can include R code in the document as follows:
 
-```{r cars}
-summary(cars)
+```{r Tables}
+dat.part <- dat[,c(3:9,11:12)]
+des.out <- describe(dat.part)[,c(2:4,8:9)]
+cor.mat <- cor(dat.part,use="pairwise.complete.obs")
+cor.mat[lower.tri(cor.mat)]
+
+
+#cor.mat <- as.data.frame(round(,use="pairwise.complete.obs"),2))
+str(cor.mat)
+# lower.tri(round(cor(dat[,c(3:9,11:12)],use="pairwise.complete.obs"),2))
+
+
 ```
+
+```{r betapower}
+library(bayestestR)
+library(dplyr)
+library(ggplot2)
+# Generate a beta distribution
+#posterior <- distribution_beta(1000, 750, 250)
+posterior <- distribution_beta(750, 190, 10)
+#?distribution_beta
+# Compute HDI and Quantile CI
+ci_hdi <- ci(posterior, method = "HDI")
+ci_eti <- ci(posterior, method = "ETI")
+
+# Plot the distribution and add the limits of the two CIs
+posterior %>% 
+  estimate_density(extend = TRUE) %>% 
+  ggplot(aes(x = x, y = y)) +
+  geom_area(fill = "orange") +
+  theme_classic() +
+  # HDI in blue
+  geom_vline(xintercept = ci_hdi$CI_low, color = "royalblue", size = 3) +
+  geom_vline(xintercept = ci_hdi$CI_high, color = "royalblue", size = 3) +
+  # ETI in red
+  geom_vline(xintercept = ci_eti$CI_low, color = "red", size = 1) +
+  geom_vline(xintercept = ci_eti$CI_high, color = "red", size = 1)
+
+
+```
+
+
+```{r}
+N <- 1000
+y <- rnorm(N,mean=100,sd=10) 
+## arguments do not have to be explicitly present;
+## must follow the order
+
+x1 <- y + rnorm(N,100,20)
+x2 <- y + rnorm(N,0,10)
+
+dat <- data.frame(y,x1,x2)
+
+lm1 <- lm(y~x1*x2,data = dat)
+str(lm1)
+
+lm1$coefficients
+str(lm1$coefficients)
+as.data.frame(lm1$coefficients)
+t(lm1$coefficients) ## t is transverse (transform/flips)
+t(t(lm1$coefficients))
+str(t(t(lm1$coefficients)))
+str(as.data.frame(lm1$coefficients))
+str(t(lm1$coefficients))
+
+list1 <- list(lm1$coefficients,as.data.frame(lm1$coefficients),t(t(lm1$coefficients)))
+list2 <- list(ob1=lm1$coefficients,ob2=as.data.frame(lm1$coefficients),ob3=t(t(lm1$coefficients)))
+str(list1)
+str(list2)
+
+hist(lm1$residuals)
+
+list1[1] ## pulls first element in the list, BUT pulls out the storage container
+## not actionable.  To work with the numbers you should...
+list1[[1]]
+## digs deeper to pull the content out of the container
+list2$ob1
+## name the objects because the object becomes the container name and you 
+## automatically pull out the info
+## [[]] use to loop through something because you want a numeric that helps you
+## the double bracket leads the evaluation toward understanding the content in 
+## the list items, not just at the list item level
+for(i in 1:3){
+  print(is.data.frame(list1[[i]]))
+}
+for(i in 1:3){
+  print(is.data.frame(list1[i]))
+}
+
+## Generic functions
+summary(dat)
+summary(lm1)
+lm1.sum <- summary(lm1)
+str(lm1.sum)
+lm1.sum$terms
+# also adjusted r^2 and r^2, etc.
+
+# Generics that include specific modeling pieces
+coef(lm1) # extracts the coefficients from lm1
+lm1$coefficients # identical output
+resid(lm1) # same as coef except for residuals
+lm1$residuals
+predict(lm1) # vital for most of our work, these are the y-hat values
+?predict
+# These generics are part of base R so are helpful
+
+dat2 <- data.frame(x1=-3:3,x2=-3:3)
+predict(lm1,dat2)
+
+
+```
+
+```{r May4}
+
+## Flow control with functions
+for(i in 1:10){ ## for this i variable (available in global env)
+  for(j in 1:10){
+    print(c(i,j,i*j))
+  }
+}
+# can do multiple operations - break, recode, etc.
+## Multiple types of flow control
+# while loops are active in the same manner but with a terminus
+# they work until you reach a point
+# until, etc.  Many more kinds
+
+## Pitfalls of flow control are garbage collection and speed
+
+## 
+
+## On May 5, we will talk about arrays and the apply() functions
+
+# Evaluate NRL dataset - merging the flight school outcomes with the performance-based measures (PBMs)
+
+
+
+```
+
+```{r May9}
+df1 <- data.frame(id=1:6,class=factor(rep(c(1:2),3)),x=rnorm(6),y=rnorm(6))
+df2 <- data.frame(cid=1:6,class=factor(rep(c(1:2),3)),x=rnorm(6),z=rnorm(6))
+df3 <- merge(df1,df2,by.x=c("id"),by.y=c("cid"))
+# much of this is relevant to the NRL data set - matching IDs, etc
+# check the recording for more details
+
+```
+
+
+```{r May11}
+# functions - for repetitive work
+# creating a structure for writing functions
+# rudiments below - object of named function, function call, encapsulate in {}
+foo <- function(){
+  
+}
+# x is a variable inside the function, limited scope (cannot be seen outside of the function)  
+myFcn <- function(x){
+  print(x)
+}
+myFcn("see this")  
+# first round, created a print(x), which prints whatever you enter
+# second round, add object to the function call, no functions/commands
+myFcn <- function(x,Rep){
+  for(i in 1:Rep){
+    print(x)
+  }
+}
+myFcn("see this",3)
+
+# third round, specify defaults
+myFcn <- function(x="nothing here",Rep=10){
+  for(i in 1:Rep){
+    print(x)
+  }
+}
+myFcn() # function runs without any specifications
+# one default to add in, but without flow control it will stop
+# the default is NULL
+myFcn <- function(x=NULL,Rep=10){
+    if(is.null(x)){
+      print("specify an x")
+    } else {
+      for(i in 1:Rep){
+      print(x)
+    }
+  }
+}
+myFcn() 
+
+
+
+```
+
+
+```{r May13}
+
+source("https://raw.githubusercontent.com/pem725/MRES/master/R/gtheory.R")
+# Always have access to outside code by source
+# If github package, in devtools there's a github function that allows you to
+# pull entired packages from github
+
+# Scoping of functions
+gtheory # see the start of the function - generic function name
+gtheory.default # see the whole function, including nested functions
+
+a <- 1
+str(a)
+
+a <- c(a,"foo")
+str(a)
+
+
+```
+```{r May16}
+# nested flow control - if statements inside for loops
+mydat <- as.data.frame(matrix(1:25,nrow=5,ncol=5,byrow=T))
+str(mydat)
+mydat$ID <- letters[1:5]
+mydat$V6 <- rnorm(5)
+
+mydat <- mydat[,c(6,1:5,7)]
+str(mydat)
+
+# suppose you want to center all the integers
+for(i in 1:ncol(mydat)){
+  if (is.integer(mydat[,i])){
+    mydat[,i] <- mydat[,i]-mean(mydat[,i])
+  }
+}
+
+str(mydat)
+
+# tomorrow we'll use assign
+# starting with old time procedural flow control
+# advance to using apply step-by-step
+```
+```{r May17}
+# use assign
+for(i in 1:ncol(mydat)){
+  if (is.integer(mydat[,i])){
+    assign(paste(names(mydat)[i],"c",sep="."),mydat[,i]-mean(mydat[,i]))
+  }
+}
+
+i <- 2
+names(mydat[,i])
+names(mydat)[i]
+mydat[i]
+mydat[,i]
+str(mydat[i])
+str(mydat[,i])
+names(mydat)
+
+names(mydat)[i] # this operates on a data frame that pulls a column to work on
+# note that the line below is an error in programming; it works but only when the
+# default is columns. Must specify the columns with [,i]. 
+# It doesn't work when you use [] correctly because they do not return names. 
+# They return unnamed vectors.
+names(mydat[i]) # this operates on a column (think PEMDAS)
+
+
+
+```
+```{r May19}
+
+# use assign - Take 2
+for(i in 1:ncol(mydat)){
+  if (is.integer(mydat[,i])){
+    assign(paste("mydat$",names(mydat)[i],".c",sep=""),mydat[,i]-mean(mydat[,i]))
+  }
+}
+
+str(mydat)
+# What we see is the variables were created but not appended to the data.frame
+# assign doesn't do that anymore, so we need a get assignment or appending is 
+# needed
+
+# Skipping the for loop and moving to apply functions
+mydat2 <- mydat
+?apply
+apply(mydat2[,2:7],2,function(x)x-mean(x)) 
+# don't need to specify anything to write out the function
+
+```
+```{r May20}
+
+v.c <- apply(mydat2[,2:7],2,function(x)x-mean(x)) 
+v.c
+str(v.c)
+# transform/transpose function, t(), flips R/C
+t(v.c) 
+str(t(v.c))
+# often create information from bivariate operations (e.g., cor/cov matrices)
+# want to extract pieces from those matrices, almost always the diagonal
+# diag() operates on square matrices
+diag(v.c)
+# lower triangle in a vector, lower.tri() is a function nested within []
+v.c[lower.tri(v.c)]
+# includes lower triangle and diagonal, organized by column in a vector
+v.c[lower.tri(v.c,diag=TRUE)]
+# this won't run because wrong dimensions
+v.c[lower.tri(v.c,diag=TRUE),]
+# running without [], leaves F/T results for the values it would print
+# this is boolean result (a flag)
+lower.tri(v.c)
+# Examples - can get an example of a function using this function
+example("lower.tri")
+
+```
+```{r May23, message=FALSE, warning=FALSE}
+
+# talking about mice
+library(mice)
+sdat <- read.csv("STORM_Survey_Data_Complete.csv",header=TRUE)
+names(sdat)
+# 1,62:80,87:105
+sdat2 <- sdat[,c(1,62:80,87:105)]
+str(sdat2)
+# creating dataset with mice
+# use extension .mice to know it was created by mice
+sdat2.mice <- mice(sdat2)
+str(sdat2.mice)
+
+library(mitools)
+
+```
+```{r May24}
+str(sdat2)
+# score the data for measures 
+# model1<-with(all, glm(drkreg~wave*sex, family=binomial()))
+
+lm1 <- with(sdat2.mice,lm(TIAct1~TIA1))
+summary(lm1)
+# MIcombine(lm1) # warning need vcov methods and can't do with this
+
+beta<-MIextract(lm1, fun=coef)
+vars<-MIextract(lm1, fun=vcov)
+summary(MIcombine(beta,vars))
+
+```
+
+```{r May25}
+# talk about objects a bit more
+str(sdat2.mice)
+# can always dereference objects with 2 things:
+# $ derefs by name
+# no name but $, use []
+
+str(sdat2.mice$imp) # list of 39
+str(sdat2.mice$imp$ID) 
+str(sdat2.mice$imp$TIAct1)
+sdat2.mice$imp$TIAct1 # vector of type df, numeric
+# using [] with lists
+str(sdat2.mice[2]) # call imp, returns list of 1, single [] returns a list
+sdat2.mice[2][2] # null, does not pull the 2nd var
+sdat2.mice[2][[2]] # subscript out of bounds, doesn't have dimensions that
+sdat2.mice[[2]] # pulls all the dfs within imp
+sdat2.mice[[2]][2] # finally pulled the 2nd df within imp
+str(sdat2.mice[[2]][2]) # df nested within a list
+str(sdat2.mice[[2]][[2]]) # now just the df
+# [[]] carve the material out from a list but returns the storage object
+```
+
+
+```{r May26}
+summary(sdat2.mice)
+plot(sdat2.mice)
+# running basic functions (generics) on a complex object
+# they will run on a list
+# these generics have specifics they can do with mice
+summary.mids(sdat2.mice) # won't run, runs on its own by specifying summary and 
+# identifying the relevant object
+summary(sdat2.mice,type="glance") # can specify options within the mice summary 
+# function
+
+# use this for d' modeling, will use Bill Revelle's psych package 
+# bags will be treated as items, simulate bags as items (use sim function)
+# look at the vignettes
+
+```
+```{r May27}
+library(psych)
+# simulation of data
+# want to create data mimicking a series of bags
+# that comply with local independence
+# sim.dichot for a dichotomous simulation structure
+bag.dat <- as.data.frame(sim.dichot(nvar = 100, nsub = 100, circum = TRUE, xloading = 0.2, yloading = 0.1,gloading = 0, xbias = 0, ybias = 0, low = .2, high = .8)) 
+# gloading is response bias, individual contribution
+str(bag.dat)
+describe(bag.dat)
+# not much variability with this set up, so we changed it
+# bag.dat <- as.data.frame(sim.dichot(nvar = 100, nsub = 100, circum = FALSE, xloading = 0.4, yloading = 0.2,gloading = 0, xbias = 0, ybias = 0,low = .5, high = .5)) 
+# changed circum, loadings, and low/high. The low/high change impacted variability
+# go through the vignettes to alter the variability within the data
+# can also change the cutpoint
+
+# This is performance, not actual.  We also need a real (as in actual) and then 
+# perceived (performance).
+
+
+```
+
+
