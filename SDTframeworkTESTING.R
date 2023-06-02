@@ -15,7 +15,9 @@ MR.1 <- baseRate*Ntrials*.1
 FA.1 <- (1-baseRate)*Ntrials*.3
 CR.1 <- Ntrials - HR.1-MR.1-FA.1
 
-psycho::dprime(HR.1,FA.1,MR.1,CR.1,baseRate*Ntrials,Ntrials-(baseRate*Ntrials),T)
+dp.tmp <- unlist(psycho::dprime(HR.1,FA.1,MR.1,CR.1,baseRate*Ntrials,Ntrials-(baseRate*Ntrials),T))
+str(dp.tmp)
+cbind(HR.1,MR.1,FA.1,CR.1,t(dp.tmp))
 
 
 # Scenario 2:  VERY High hit rate (98%) relative to miss rate (2%)
@@ -34,8 +36,10 @@ MR.1 <- baseRate*Ntrials*.02
 FA.1 <- (1-baseRate)*Ntrials*.1
 CR.1 <- Ntrials - HR.1-MR.1-FA.1
 
-psycho::dprime(HR.1,FA.1,MR.1,CR.1,baseRate*Ntrials,Ntrials-(baseRate*Ntrials),T)
+tmp <- psycho::dprime(HR.1,FA.1,MR.1,CR.1,baseRate*Ntrials,Ntrials-(baseRate*Ntrials),T)
+str(tmp)
 
+unlist(tmp)
 
 ##TTD:
 ## 1. Get 2x2 matrix into a shiny app
